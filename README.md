@@ -5,3 +5,10 @@ Clonar el repositorio
 Abre tu terminal y ejecuta el siguiente comando para descargar el código:
 git clone https://github.com/tu-usuario/nombre-del-repo.git
 cd nombre-del-repo
+
+Inicializar Entorno Virtual:
+
+python -m venv myworld
+
+Encender Entorno Virtual: 
+myworld\Scripts\activate.bat
