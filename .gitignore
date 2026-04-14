@@ -1,1 +1,15 @@
-__pycache__
+# Entorno Virtual
+.venv/
+myworld/
+venv/
+env/
+
+# Base de datos (No subir db)
+*.sqlite3
+
+# Archivos temporales de Python
+__pycache__/
+*.py[cod]
+
+# Configuraciones de VS Code
+.vscode/
