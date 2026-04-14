@@ -6,9 +6,15 @@ Abre tu terminal y ejecuta el siguiente comando para descargar el código:
 git clone https://github.com/tu-usuario/nombre-del-repo.git
 cd nombre-del-repo
 
-Inicializar Entorno Virtual:
+### Inicializar Entorno Virtual:
+python -m venv .venv
 
-python -m venv myworld
+### Encender Entorno Virtual:
+# En Windows (PowerShell):
+.\.venv\Scripts\Activate.ps1
 
-Encender Entorno Virtual: 
-myworld\Scripts\activate.bat
+### Instalación de dependencias:
+Una vez activado el entorno, instala las librerías necesarias:
+```powershell
+pip install django
+pip install -r requirements.txt
