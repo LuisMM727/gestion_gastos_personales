@@ -1,0 +1,30 @@
+{% extends 'members/base.html' %}
+
+{% block title %}Eliminar Gasto{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header bg-danger text-white text-center">
+                    <h3 class="mb-0">Eliminar Gasto</h3>
+                </div>
+                <div class="card-body text-center">
+                    <p>¿Estás seguro de que quieres eliminar este gasto?</p>
+                    <div class="alert alert-warning">
+                        <strong>{{ expense.description }}</strong> - {{ expense.amount|floatformat:"-2" }} Gs
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">Eliminar</button>
+                            <a href="{% url 'expense_list' %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
