@@ -31,7 +31,16 @@ def profile(request):
 def home(request):
     if request.user.is_authenticated:
         return redirect('expense_list')
-    return render(request, 'members/home.html')
+    # Si no está autenticado, mostrar el formulario de registro directamente
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cuenta creada exitosamente. Ahora puedes iniciar sesión.')
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'members/register.html', {'form': form})
 
 @login_required
 def expense_list(request):
