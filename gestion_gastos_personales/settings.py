@@ -119,7 +119,6 @@ STATIC_URL = 'static/'
 
 # Login redirects
 LOGIN_REDIRECT_URL = 'expense_list'
-LOGOUT_REDIRECT_URL = 'home'
 
 # Media files
 MEDIA_URL = '/media/'

@@ -30,7 +30,7 @@ urlpatterns = [
     ), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(
         template_name='registration/logged_out.html',
-        next_page='register'
+        next_page='login'
     ), name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
