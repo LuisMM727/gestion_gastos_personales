@@ -28,7 +28,9 @@ urlpatterns = [
         template_name='registration/login.html',
         authentication_form=LoginForm
     ), name='login'),
-    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(
+        next_page='login'
+    ), name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 
