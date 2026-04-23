@@ -1,0 +1,100 @@
+# Configuración de pre-commit hooks
+# Más información: https://pre-commit.com/
+
+repos:
+  # Black - Formateador de código automático
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3
+        args: ['--line-length=100']
+        exclude: |
+          (?x)^(
+              migrations/|
+              venv/|
+              env/|
+              .venv/
+          )
+
+  # Flake8 - Análisis estático de código
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: ['--config=.flake8']
+        exclude: |
+          (?x)^(
+              migrations/|
+              venv/|
+              env/|
+              .venv/|
+              __pycache__/
+          )
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-bugbear
+          - flake8-comprehensions
+
+  # isort - Organizador de importaciones
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile=black', '--line-length=100']
+        exclude: |
+          (?x)^(
+              migrations/|
+              venv/|
+              env/|
+              .venv/
+          )
+
+  # Trailing whitespace
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: |
+          (?x)^(
+              migrations/|
+              venv/|
+              env/|
+              .venv/
+          )
+      - id: end-of-file-fixer
+        exclude: |
+          (?x)^(
+              migrations/|
+              venv/|
+              env/|
+              .venv/
+          )
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: mixed-line-ending
+
+  # Pylint - Análisis detallado (opcional, ejecutar manualmente)
+  # Descomentado de pre-commit hooks por requerer dependencias de Django
+  # Para usarlo manualmente: pylint members/ gestion_gastos_personales/
+  # - repo: https://github.com/PyCQA/pylint
+  #   rev: v2.17.7
+  #   hooks:
+  #     - id: pylint
+  #       args: ['--max-line-length=100']
+  #       exclude: |
+  #         (?x)^(
+  #             migrations/|
+  #             venv/|
+  #             env/|
+  #             .venv/|
+  #             tests\.py|
+  #             manage\.py
+  #         )
+  #       additional_dependencies: ['django']
+
+# Configuración general
+default_stages: [commit]
+fail_fast: false

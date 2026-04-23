@@ -1,0 +1,45 @@
+[flake8]
+# Configuración de Flake8 para el proyecto
+# Excluyendo archivos autogenerados y entorno virtual
+
+# Línea máxima de longitud
+max-line-length = 100
+
+# Directorios y archivos a ignorar
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    migrations,
+    .eggs,
+    *.egg,
+    build,
+    dist,
+    .mypy_cache,
+    .pytest_cache,
+    .tox,
+    *.pyc,
+    .idea,
+    .vscode
+
+# Reglas a ignorar
+ignore =
+    # E501: línea demasiado larga (lo maneja Black)
+    E501,
+    # W503: salto de línea antes del operador binario
+    W503,
+    # E203: espacio en blanco antes de ':'
+    E203
+
+# Errores específicos que NO se ignoran (más estricto)
+select =
+    E,
+    W,
+    F,
+    C,
+    N
+
+# Permitir complejidad máxima
+max-complexity = 10
