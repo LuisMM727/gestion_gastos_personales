@@ -1,31 +1,42 @@
 {% extends 'members/base.html' %}
-
+{% load currency_tags %} <!-- Cargamos etiquetas personalizadas para formatear moneda -->
 {% block title %}Mis Gastos{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Total Gastado</h5>
-                    <h3 class="card-text">{{ total_gastado|floatformat:"-2" }} Gs</h3>
-                </div>
-            </div>
-        </div>
+
         <div class="col-md-4">
             <div class="card text-white bg-success shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Salario Mínimo</h5>
-                    <h3 class="card-text">{{ salario_minimo|floatformat:"-2" }} Gs</h3>
+                    <h5 class="card-title">Ingresos</h5>
+                    <h3 class="card-text">Gs {{ salario_minimo|gs_format }}</h3>
                 </div>
             </div>
         </div>
+
+
+
+
+        <div class="col-md-4">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Egresos</h5>
+                    <h3 class="card-text">Gs {{ total_gastado|gs_format }}</h3>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
         <div class="col-md-4">
             <div class="card text-white {% if diferencia >= 0 %}bg-info{% else %}bg-danger{% endif %} shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Saldo Restante</h5>
-                    <h3 class="card-text">{{ diferencia|floatformat:"-2" }} Gs</h3>
+                    <h5 class="card-title">Saldo</h5>
+                    <h3 class="card-text">Gs {{ diferencia|gs_format }}</h3>
                 </div>
             </div>
         </div>
@@ -59,17 +70,20 @@
                             <td>{{ expense.date }}</td>
                             <td>{{ expense.description }}</td>
                             <td>{{ expense.category }}</td>
-                            <td>{{ expense.amount|floatformat:"-2" }} Gs</td>
+                            <td>{{ expense.amount|gs_format }} Gs</td>
                             <td>
                                 {% if expense.image %}
-                                    <img src="{{ expense.image.url }}" alt="Imagen del gasto" class="img-thumbnail" style="max-width: 60px; max-height: 60px;">
+                                <img src="{{ expense.image.url }}" alt="Imagen del gasto" class="img-thumbnail"
+                                    style="max-width: 60px; max-height: 60px;">
                                 {% else %}
-                                    <span class="text-muted">Sin imagen</span>
+                                <span class="text-muted">Sin imagen</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'expense_update' expense.pk %}" class="btn btn-warning btn-sm">Editar</a>
-                                <a href="{% url 'expense_delete' expense.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                                <a href="{% url 'expense_update' expense.pk %}"
+                                    class="btn btn-warning btn-sm">Editar</a>
+                                <a href="{% url 'expense_delete' expense.pk %}"
+                                    class="btn btn-danger btn-sm">Eliminar</a>
                             </td>
                         </tr>
                         {% empty %}
