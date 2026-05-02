@@ -77,18 +77,18 @@
                 e.target.value = formatNumber(e.target.value);
             });
 
-            // LIMPIEZA ANTES DEL ENVÍO (Crucial para Inserción)[cite: 11]
+            // LIMPIEZA ANTES DEL ENVÍO (Crucial para Inserción)
             form.addEventListener('submit', function (e) {
-                // Eliminamos TODO lo que no sea un número antes de que Django lo reciba[cite: 11]
+                // Eliminamos TODO lo que no sea un número antes de que Django lo reciba
                 const valorLimpio = inputMonto.value.replace(/\D/g, "");
                 inputMonto.value = valorLimpio;
             });
         }
 
         function formatNumber(n) {
-            let val = n.replace(/\D/g, ""); // Solo números[cite: 11]
+            let val = n.replace(/\D/g, ""); // Solo números
             if (val === "") return "";
-            // Usa el formato de Paraguay para poner los puntos de miles[cite: 11]
+            // Usa el formato de Paraguay para poner los puntos de miles
             return new Intl.NumberFormat('es-PY').format(parseInt(val)).replace(/,/g, ".");
         }
     });

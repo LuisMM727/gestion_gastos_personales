@@ -10,7 +10,7 @@ import datetime
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     salario_minimo = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0, verbose_name="Salario Mínimo"
+        max_digits=12, decimal_places=0, default=0, verbose_name="Salario Mínimo"
     )
 
     def __str__(self):

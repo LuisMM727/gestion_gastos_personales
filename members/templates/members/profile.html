@@ -11,29 +11,31 @@
                     <h3 class="mb-0">Configurar Salario Mínimo</h3>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" id="profileForm">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="{{ form.salario_minimo.id_for_label }}" class="form-label">Salario Mínimo (Gs)</label>
+                            <label for="{{ form.salario_minimo.id_for_label }}" class="form-label fw-bold">Salario
+                                Mínimo (Gs)</label>
                             {{ form.salario_minimo }}
                         </div>
+
+                        <!-- Bloque de errores con anidación correcta -->
                         {% if form.errors %}
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    {% for field in form %}
-                                        {% for error in field.errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    {% endfor %}
-                                    {% for error in form.non_field_errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
+                        <div class="alert alert-danger p-2 small">
+                            <ul class="mb-0">
+                                {% for field in form %}
+                                {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
                         {% endif %}
+
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-info btn-lg">Guardar</button>
-                            <a href="{% url 'expense_list' %}" class="btn btn-secondary">Volver</a>
+                            <button type="submit" class="btn btn-info btn-lg text-white fw-bold">Guardar
+                                Cambios</button>
+                            <a href="{% url 'expense_list' %}" class="btn btn-outline-secondary">Cancelar</a>
                         </div>
                     </form>
                 </div>
@@ -41,4 +43,43 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('id_salario_minimo');
+
+        if (input) {
+            input.classList.add('text-end', 'form-control-lg');
+            input.setAttribute('type', 'text');
+
+            function formatNumber(value) {
+                if (!value) return "";
+                // Limpia puntos previos para evitar duplicación de ceros
+                let cleanValue = value.toString().replace(/\D/g, "");
+                if (cleanValue === "") return "";
+                // Formato de miles con punto
+                return parseInt(cleanValue, 10).toLocaleString('de-DE');
+            }
+
+            // Aplicar formato al valor inicial
+            input.value = formatNumber(input.value);
+
+            input.addEventListener('input', function (e) {
+                let cursorPosition = e.target.selectionStart;
+                let oldLength = e.target.value.length;
+
+                e.target.value = formatNumber(e.target.value);
+
+                let newLength = e.target.value.length;
+                cursorPosition = cursorPosition + (newLength - oldLength);
+                e.target.setSelectionRange(cursorPosition, cursorPosition);
+            });
+
+            // Elimina puntos antes de enviar para que Django reciba un número puro
+            input.form.addEventListener('submit', function () {
+                input.value = input.value.replace(/\./g, "");
+            });
+        }
+    });
+</script>
 {% endblock %}

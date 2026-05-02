@@ -1,92 +1,203 @@
 {% extends 'members/base.html' %}
-{% load currency_tags %} <!-- Cargamos etiquetas personalizadas para formatear moneda -->
-{% block title %}Mis Gastos{% endblock %}
+{% load static %}
+{% load currency_tags %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'members/css/style.css' %}">
+<style>
+    /* Bloque superior fijo pegado a la navbar */
+    .sticky-header-container {
+        position: sticky;
+        top: 56px;
+        z-index: 1020;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 10px 0;
+    }
+
+    /* Cuadro de totales angosto y centrado */
+    .totales-compactos {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    /* Jerarquía Tipográfica para Totales (Mejora visual) */
+    .total-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        opacity: 0.85;
+        display: block;
+    }
+
+    .monto-header {
+        font-size: 1.5rem;
+        /* Aumentado para resaltar */
+        text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.3);
+        display: block;
+        line-height: 1.2;
+    }
+
+    /* Botones de acción con ancho uniforme */
+    .btn-fijo {
+        width: 75px;
+        text-align: center;
+    }
+
+    /* Filas con colores alternos para mejor lectura */
+    .table-zebra tbody tr:nth-of-type(even) {
+        background-color: #f2f4f7;
+    }
+
+    .table-zebra tbody tr:hover {
+        background-color: #e9ecef !important;
+    }
+
+    /* Ajustes móviles */
+    @media (max-width: 768px) {
+        .totales-compactos {
+            max-width: 100%;
+        }
+
+        .monto-header {
+            font-size: 1.2rem;
+        }
+
+        .btn-fijo {
+            width: 70px;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-
-        <div class="col-md-4">
-            <div class="card text-white bg-success shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Ingresos</h5>
-                    <h3 class="card-text">Gs {{ salario_minimo|gs_format }}</h3>
+<div class="sticky-header-container">
+    <div class="container totales-compactos">
+        <!-- Totales -->
+        <div class="row g-2 mb-2">
+            <div class="col-4">
+                <div class="card text-white bg-success shadow-sm border-0">
+                    <div class="card-body p-2 text-center">
+                        <small class="fw-bold opacity-75">Ingresos</small>
+                        <span class="monto-header fw-bold">Gs {{ salario_minimo|gs_format }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card text-white bg-primary shadow-sm border-0">
+                    <div class="card-body p-2 text-center">
+                        <small class="fw-bold opacity-75">Egresos</small>
+                        <span class="monto-header fw-bold">Gs {{ total_gastado|gs_format }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div
+                    class="card text-white {% if diferencia >= 0 %}bg-info{% else %}bg-danger{% endif %} shadow-sm border-0">
+                    <div class="card-body p-2 text-center">
+                        <small class="fw-bold opacity-75">Saldo</small>
+                        <span class="monto-header fw-bold">Gs {{ diferencia|gs_format }}</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card text-white bg-primary shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Egresos</h5>
-                    <h3 class="card-text">Gs {{ total_gastado|gs_format }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card text-white {% if diferencia >= 0 %}bg-info{% else %}bg-danger{% endif %} shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Saldo</h5>
-                    <h3 class="card-text">Gs {{ diferencia|gs_format }}</h3>
+        <!-- Encabezado de Tabla Fijo -->
+        <div class="card bg-dark text-white border-0 rounded-bottom-0 shadow">
+            <div class="card-header border-0 py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Mis Gastos</span>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'expense_create' %}" class="btn btn-primary btn-sm">Agregar Nuevo Gasto</a>
+                        <a href="{% url 'expense_export_excel' %}" class="btn btn-success btn-sm">Exportar a Excel</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="card shadow-lg border-0 rounded-lg">
-        <div class="card-header bg-dark text-white">
-            <h3 class="mb-0 d-flex justify-content-between align-items-center">
-                Mis Gastos
-                <div>
-                    <a href="{% url 'expense_create' %}" class="btn btn-primary btn-sm">Agregar Nuevo Gasto</a>
-                    <a href="{% url 'expense_export_excel' %}" class="btn btn-success btn-sm">Exportar a Excel</a>
-                </div>
-            </h3>
-        </div>
-        <div class="card-body">
+</div>
+
+<div class="container totales-compactos mb-5">
+    <div class="card border-0 shadow-lg rounded-top-0">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover align-middle mb-0 table-zebra">
                     <thead class="table-dark">
                         <tr>
-                            <th>Fecha</th>
+                            <th class="ps-3">Fecha</th>
                             <th>Descripción</th>
-                            <th>Categoría</th>
-                            <th>Importe</th>
-                            <th>Imagen</th>
-                            <th>Acciones</th>
+                            <th class="text-start">Categoría</th> <!-- Alineado a la izquierda -->
+                            <th class="text-end">Importe</th>
+                            <th class="text-center">Comprobante</th> <!-- Columna recuperada -->
+                            <th class="text-center pe-3">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for expense in expenses %}
                         <tr>
-                            <td>{{ expense.date }}</td>
+                            <td class="ps-3 small text-muted">{{ expense.date }}</td>
                             <td>{{ expense.description }}</td>
-                            <td>{{ expense.category }}</td>
-                            <td>{{ expense.amount|gs_format }}</td>
-                            <td>
+
+                            <!-- Categoría: sin fondo, alineada a la izquierda y letra pequeña -->
+                            <td class="text-start text-muted small">
+                                {{ expense.category }}
+                            </td>
+
+                            <!-- Importe: sin negritas -->
+                            <td class="text-end">
+                                {{ expense.amount|gs_format }}
+                            </td>
+
+                            <!-- Imagen: Columna recuperada -->
+                            <td class="text-center">
                                 {% if expense.image %}
-                                <img src="{{ expense.image.url }}" alt="Imagen del gasto" class="img-thumbnail"
-                                    style="max-width: 60px; max-height: 60px;">
+                                <img src="{{ expense.image.url }}" class="rounded shadow-sm"
+                                    style="height: 35px; width: 35px; object-fit: cover;">
                                 {% else %}
-                                <span class="text-muted">Sin imagen</span>
+                                <span class="text-muted" style="font-size: 0.7rem;">Sin foto</span>
                                 {% endif %}
                             </td>
-                            <td>
-                                <a href="{% url 'expense_update' expense.pk %}"
-                                    class="btn btn-warning btn-sm">Editar</a>
-                                <a href="{% url 'expense_delete' expense.pk %}"
-                                    class="btn btn-danger btn-sm">Eliminar</a>
+
+                            <!-- Acciones: Botones con el mismo ancho -->
+                            <td class="text-center pe-3">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="{% url 'expense_update' expense.pk %}"
+                                        class="btn btn-warning btn-sm py-0 fw-bold text-white btn-fijo">
+                                        Editar
+                                    </a>
+                                    <a href="{% url 'expense_delete' expense.pk %}"
+                                        class="btn btn-danger btn-sm py-0 fw-bold text-white btn-fijo">
+                                        Eliminar
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No tienes gastos registrados.</td>
+                            <td colspan="6" class="text-center py-4 text-muted">No hay gastos registrados.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- Paginación -->
+        {% if expenses.has_other_pages %}
+        <div class="card-footer bg-white border-0 py-3 text-center">
+            <div class="btn-group shadow-sm">
+                {% if expenses.has_previous %}
+                <a href="?page=1" class="btn btn-outline-primary btn-sm">Pág. 1</a>
+                <a href="?page={{ expenses.previous_page_number }}" class="btn btn-outline-primary btn-sm">Anterior</a>
+                {% endif %}
+                <span class="btn btn-primary btn-sm active">Página {{ expenses.number }}</span>
+                {% if expenses.has_next %}
+                <a href="?page={{ expenses.next_page_number }}" class="btn btn-outline-primary btn-sm">Siguiente</a>
+                <a href="?page={{ expenses.paginator.num_pages }}" class="btn btn-outline-primary btn-sm">&raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

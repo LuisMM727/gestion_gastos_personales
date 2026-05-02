@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import Expense, UserProfile
 from .forms import ExpenseForm, UserRegisterForm, UserProfileForm
 import datetime
+from django.core.paginator import Paginator
 
 # ==========================================
 # BLOQUE 1: GESTIÓN DE USUARIOS Y PERFIL
@@ -66,16 +67,27 @@ def home(request):
 # LISTAR: Muestra todos los gastos del usuario y hace cálculos financieros
 @login_required
 def expense_list(request):
-    expenses = Expense.objects.filter(user=request.user)
-    total_gastado = sum(expense.amount for expense in expenses)
+    # 1. Obtenemos todos los gastos del usuario ordenados por fecha descendente
+    expenses_list = Expense.objects.filter(user=request.user).order_by("-date")
+
+    # 2. Lógica financiera (se mantiene igual)
+    total_gastado = sum(expense.amount for expense in expenses_list)
     profile = UserProfile.objects.filter(user=request.user).first()
     salario_minimo = profile.salario_minimo if profile else 0
     diferencia = salario_minimo - total_gastado if salario_minimo > 0 else 0
+
+    # 3. Configuración del Paginador (Ejemplo: 6 gastos por página)
+    paginator = Paginator(expenses_list, 7)
+    page_number = request.GET.get("page")  # Captura el número de página de la URL
+    page_obj = paginator.get_page(
+        page_number
+    )  # Obtiene los registros de esa página específica
+
     return render(
         request,
         "members/expense_list.html",
         {
-            "expenses": expenses,
+            "expenses": page_obj,  # IMPORTANTE: Ahora enviamos el objeto de página
             "total_gastado": total_gastado,
             "salario_minimo": salario_minimo,
             "diferencia": diferencia,
