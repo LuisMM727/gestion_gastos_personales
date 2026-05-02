@@ -32,12 +32,41 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'expense_list' %}">Gastos</a></li>
+
+                    <!-- MENÚ DESPLEGABLE DE GASTOS -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Gastos
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'expense_list' %}">Ver Listado</a></li>
+                            <li>
+                                <hr class="dropdown-divider border-light">
+                            </li>
+                            <li>
+                                <h6 class="dropdown-header">Exportar Datos</h6>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                    href="{% url 'expense_export_excel' %}?start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}">
+                                    <i class="bi bi-file-earmark-excel"></i> Excel
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item disabled" href="#">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                     <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Perfil</a></li>
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}" style="display: inline;">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-link nav-link">Cerrar Sesión</button>
+                            <button type="submit" class="btn btn-link nav-link" style="text-decoration: none;">Cerrar
+                                Sesión</button>
                         </form>
                     </li>
                     {% else %}

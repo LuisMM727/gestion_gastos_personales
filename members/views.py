@@ -65,32 +65,45 @@ def home(request):
 
 
 # LISTAR: Muestra todos los gastos del usuario y hace cálculos financieros
+# LISTAR: Muestra los gastos filtrados y recalcula los totales
 @login_required
 def expense_list(request):
-    # 1. Obtenemos todos los gastos del usuario ordenados por fecha descendente
-    expenses_list = Expense.objects.filter(user=request.user).order_by("-date")
+    # 1. Capturar las fechas enviadas desde el formulario de la página (si existen)
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
 
-    # 2. Lógica financiera (se mantiene igual)
-    total_gastado = sum(expense.amount for expense in expenses_list)
+    # 2. Empezar con todos los gastos del usuario
+    expenses_query = Expense.objects.filter(user=request.user).order_by("-date")
+
+    # 3. APLICAR FILTROS: Si el usuario eligió fechas, filtramos la base de datos
+    if start_date:
+        expenses_query = expenses_query.filter(date__gte=start_date)
+    if end_date:
+        expenses_query = expenses_query.filter(date__lte=end_date)
+
+    # 4. Lógica financiera: Se calcula SOLO sobre los registros filtrados
+    # Esto asegura que si filtras un mes, los cuadros de arriba sumen solo ese mes
+    total_gastado = sum(expense.amount for expense in expenses_query)
     profile = UserProfile.objects.filter(user=request.user).first()
     salario_minimo = profile.salario_minimo if profile else 0
     diferencia = salario_minimo - total_gastado if salario_minimo > 0 else 0
 
-    # 3. Configuración del Paginador (Ejemplo: 6 gastos por página)
-    paginator = Paginator(expenses_list, 7)
-    page_number = request.GET.get("page")  # Captura el número de página de la URL
-    page_obj = paginator.get_page(
-        page_number
-    )  # Obtiene los registros de esa página específica
+    # 5. Configuración del Paginador
+    paginator = Paginator(expenses_query, 7)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     return render(
         request,
         "members/expense_list.html",
         {
-            "expenses": page_obj,  # IMPORTANTE: Ahora enviamos el objeto de página
+            "expenses": page_obj,
             "total_gastado": total_gastado,
             "salario_minimo": salario_minimo,
             "diferencia": diferencia,
+            # IMPORTANTE: Enviamos las fechas de vuelta al HTML para que no se borren de los cuadritos
+            "start_date": start_date or "",
+            "end_date": end_date or "",
         },
     )
 
@@ -119,14 +132,26 @@ def expense_create(request):
 @login_required
 def expense_update(request, pk):
     expense = get_object_or_404(Expense, pk=pk, user=request.user)
+
+    # 1. CAPTURAR EL ESTADO ACTUAL (venga por GET o por POST en la URL)
+    page = request.GET.get("page", 1)
+    start_date = request.GET.get("start_date", "")
+    end_date = request.GET.get("end_date", "")
+
     if request.method == "POST":
         form = ExpenseForm(request.POST, request.FILES, instance=expense)
         if form.is_valid():
             form.save()
             messages.success(request, "Gasto actualizado exitosamente.")
-            return redirect("expense_list")
+
+            # 2. REDIRECCIÓN CONSTRUIDA CON LOS FILTROS CAPTURADOS
+            # Esto es lo que evita que el filtro se limpie al guardar
+            return redirect(
+                f"/expenses/?page={page}&start_date={start_date}&end_date={end_date}"
+            )
     else:
         form = ExpenseForm(instance=expense)
+
     return render(request, "members/expense_form.html", {"form": form})
 
 
@@ -153,30 +178,51 @@ def expense_export_excel(request):
     from openpyxl import Workbook
     from django.http import HttpResponse
 
-    expenses = Expense.objects.filter(user=request.user)
+    # 1. CAPTURAR LOS FILTROS DE LA URL
+    # Obtenemos las fechas si el usuario filtró en la pantalla anterior
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
 
+    # 2. INICIAR LA CONSULTA BASE
+    expenses_query = Expense.objects.filter(user=request.user).order_by("-date")
+
+    # 3. APLICAR FILTROS (Misma lógica que en expense_list)
+    if start_date:
+        expenses_query = expenses_query.filter(date__gte=start_date)
+    if end_date:
+        expenses_query = expenses_query.filter(date__lte=end_date)
+
+    # 4. CREACIÓN DEL LIBRO EXCEL
     wb = Workbook()
     ws = wb.active
-    ws.title = "Gastos"
+    ws.title = "Gastos Filtrados"
 
-    # Define los encabezados de las columnas en el Excel
+    # Define los encabezados
     ws["A1"] = "Fecha"
     ws["B1"] = "Descripción"
     ws["C1"] = "Categoría"
     ws["D1"] = "Monto (Gs)"
 
-    # Recorre los gastos de la DB y los escribe en filas del Excel
-    for i, expense in enumerate(expenses, start=2):
-        ws[f"A{i}"] = expense.date.strftime("%Y-%m-%d")
+    # 5. RECORRER LA CONSULTA FILTRADA
+    # Ahora 'expenses_query' solo contiene lo que el usuario filtró
+    for i, expense in enumerate(expenses_query, start=2):
+        ws[f"A{i}"] = expense.date.strftime(
+            "%d/%m/%Y"
+        )  # Formato más legible (DD/MM/AAAA)
         ws[f"B{i}"] = expense.description
         ws[f"C{i}"] = expense.category
         ws[f"D{i}"] = float(expense.amount)
 
-    # Configura la respuesta del navegador para que entienda que es un archivo .xlsx
-
+    # Configuración de la respuesta
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = "attachment; filename=gastos.xlsx"
+
+    # Nombre de archivo dinámico si hay fechas
+    filename = "gastos.xlsx"
+    if start_date or end_date:
+        filename = f"gastos_filtrados_{start_date}_a_{end_date}.xlsx"
+
+    response["Content-Disposition"] = f"attachment; filename={filename}"
     wb.save(response)
     return response

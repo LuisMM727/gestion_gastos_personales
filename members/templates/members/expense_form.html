@@ -12,7 +12,8 @@
                 </div>
                 <div class="card-body">
                     <!-- El id="expenseForm" permite al script interceptar el envío -->
-                    <form method="post" id="expenseForm" enctype="multipart/form-data" autoComplete="off">
+                    <form method="post" id="expenseForm" action="?{{ request.GET.urlencode }}"
+                        enctype="multipart/form-data" autoComplete="off">
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6 mb-3">
