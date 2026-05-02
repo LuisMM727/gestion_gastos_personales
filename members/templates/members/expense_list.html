@@ -15,9 +15,6 @@
             </div>
         </div>
 
-
-
-
         <div class="col-md-4">
             <div class="card text-white bg-primary shadow">
                 <div class="card-body">
@@ -26,11 +23,6 @@
                 </div>
             </div>
         </div>
-
-
-
-
-
 
         <div class="col-md-4">
             <div class="card text-white {% if diferencia >= 0 %}bg-info{% else %}bg-danger{% endif %} shadow">
@@ -59,7 +51,7 @@
                             <th>Fecha</th>
                             <th>Descripción</th>
                             <th>Categoría</th>
-                            <th>Monto</th>
+                            <th>Importe</th>
                             <th>Imagen</th>
                             <th>Acciones</th>
                         </tr>
@@ -70,7 +62,7 @@
                             <td>{{ expense.date }}</td>
                             <td>{{ expense.description }}</td>
                             <td>{{ expense.category }}</td>
-                            <td>{{ expense.amount|gs_format }} Gs</td>
+                            <td>{{ expense.amount|gs_format }}</td>
                             <td>
                                 {% if expense.image %}
                                 <img src="{{ expense.image.url }}" alt="Imagen del gasto" class="img-thumbnail"
