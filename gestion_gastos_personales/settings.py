@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'members',
 ]
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -83,9 +85,13 @@ DATABASES = {
         'PORT': '3306',                   
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            # ESTA ES LA CLAVE: Forzamos a Django a no usar RETURNING
+            'isolation_level': None,
         },
     }
 }
+
+
 
 
 # Password validation
