@@ -5,6 +5,10 @@ from .models import Expense, UserProfile
 from .forms import ExpenseForm, UserRegisterForm, UserProfileForm
 import datetime
 from django.core.paginator import Paginator
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 
 # ==========================================
 # BLOQUE 1: GESTIÓN DE USUARIOS Y PERFIL
@@ -225,4 +229,89 @@ def expense_export_excel(request):
 
     response["Content-Disposition"] = f"attachment; filename={filename}"
     wb.save(response)
+    return response
+
+
+@login_required
+def expense_export_pdf(request):
+    from django.http import HttpResponse
+
+    # 1. CAPTURAR FILTROS
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # 2. CONSULTA FILTRADA
+    expenses_query = Expense.objects.filter(user=request.user).order_by("-date")
+    if start_date:
+        expenses_query = expenses_query.filter(date__gte=start_date)
+    if end_date:
+        expenses_query = expenses_query.filter(date__lte=end_date)
+
+    # 3. CONFIGURAR RESPUESTA HTTP
+    response = HttpResponse(content_type="application/pdf")
+    filename = "reporte_gastos.pdf"
+    if start_date or end_date:
+        filename = f"reporte_filtrado_{start_date}_a_{end_date}.pdf"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    # 4. GENERAR EL PDF
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    # Título principal
+    styles["Title"].alignment = 1
+    titulo_texto = "Reporte de Gastos Personales"
+    elements.append(Paragraph(titulo_texto, styles["Title"]))
+
+    # 1. DEFINIR ESTILO CENTRADO PARA EL SUBTÍTULO
+    estilo_subtitulo = styles["Heading2"]
+    estilo_subtitulo.alignment = 1
+
+    # 1. SALTO DE LÍNEA Y FORMATO DE FECHA EN EL SUBTÍTULO
+    if start_date and end_date:
+        # Convertimos las fechas de AAAA-MM-DD a DD/MM/AAAA para el reporte
+        from datetime import datetime
+
+        sd_obj = datetime.strptime(start_date, "%Y-%m-%d").strftime("%d/%m/%Y")
+        ed_obj = datetime.strptime(end_date, "%Y-%m-%d").strftime("%d/%m/%Y")
+
+        # Agregamos el periodo como un párrafo nuevo (segunda línea)
+        subtitulo = f"Periodo: {sd_obj} al {ed_obj}"
+        elements.append(
+            Paragraph(subtitulo, styles["Heading2"])
+        )  # 'Heading2' lo centra y lo hace un poco más pequeño
+
+    elements.append(Spacer(1, 12))
+
+    # Definir datos para la tabla
+    data = [["Fecha", "Descripción", "Categoría", "Monto (Gs)"]]
+    for exp in expenses_query:
+        data.append(
+            [
+                exp.date.strftime("%d/%m/%Y"),
+                exp.description,
+                exp.category,
+                f"{exp.amount:,.0f}".replace(",", "."),  # Formato de moneda paraguaya
+            ]
+        )
+    # Estilo de la tabla
+    tabla = Table(data, colWidths=[80, 220, 100, 100])
+    tabla.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.black),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("ALIGN", (1, 1), (1, -1), "LEFT"),  # Descripción a la izquierda
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("GRID", (0, 0), (-1, -1), 1, colors.grey),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+            ]
+        )
+    )
+
+    elements.append(tabla)
+    doc.build(elements)
     return response

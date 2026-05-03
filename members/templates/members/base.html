@@ -54,7 +54,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item disabled" href="#">
+                                <a class="dropdown-item"
+                                    href="{% url 'expense_export_pdf' %}?start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}">
                                     <i class="bi bi-file-earmark-pdf"></i> PDF
                                 </a>
                             </li>

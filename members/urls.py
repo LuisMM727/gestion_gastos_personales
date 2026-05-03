@@ -11,4 +11,5 @@ urlpatterns = [
     path("expenses/<int:pk>/update/", views.expense_update, name="expense_update"),
     path("expenses/<int:pk>/delete/", views.expense_delete, name="expense_delete"),
     path("expenses/export/", views.expense_export_excel, name="expense_export_excel"),
+    path("expenses/export/pdf/", views.expense_export_pdf, name="expense_export_pdf"),
 ]
