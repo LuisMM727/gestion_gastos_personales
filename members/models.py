@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 import datetime
 
 # ==========================================
-# BLOQUE 1: PERFIL AMPLIADO DE USUARIO
+# TABLA UserProfile
 # ==========================================
 
 
@@ -18,7 +18,7 @@ class UserProfile(models.Model):
 
 
 # ==========================================
-# BLOQUE 2: GESTIÓN DE GASTOS
+# TABLA Expense
 # ==========================================
 
 
