@@ -20,7 +20,7 @@
         margin: 0 auto;
     }
 
-    /* Jerarquía Tipográfica para Totales (Mejora visual) */
+    /* Jerarquía Tipográfica para Totales */
     .total-label {
         font-size: 0.75rem;
         text-transform: uppercase;
@@ -31,19 +31,13 @@
     }
 
     .monto-header {
-        font-size: 1.5rem;
-        text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.3);
+        font-size: 1.8rem;
         display: block;
-        line-height: 1.2;
+        line-height: 1.1;
+        letter-spacing: -1px;
     }
 
-    /* Botones de acción con ancho uniforme */
-    .btn-fijo {
-        width: 75px;
-        text-align: center;
-    }
-
-    /* Filas con colores alternos para mejor lectura */
+    /* Filas con colores alternos */
     .table-zebra tbody tr:nth-of-type(even) {
         background-color: #f2f4f7;
     }
@@ -52,19 +46,84 @@
         background-color: #e9ecef !important;
     }
 
-    /* Ajustes móviles */
-    @media (max-width: 768px) {
-        .totales-compactos {
-            max-width: 100%;
-        }
+    /* Estilos de Tabla Pulidos */
+    .table-zebra {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
 
-        .monto-header {
-            font-size: 1.2rem;
-        }
+    .table-zebra thead th {
+        border-bottom: 2px solid #f0f0f0 !important;
+        color: #888;
+        font-weight: 600;
+        padding-bottom: 15px;
+    }
 
-        .btn-fijo {
-            width: 70px;
-        }
+    .table-zebra tbody td {
+        border-bottom: 1px solid #f8f9fa !important;
+        padding: 15px 10px;
+    }
+
+    /* Iconos de acción */
+    .action-icon {
+        color: #adb5bd;
+        transition: all 0.2s ease;
+        font-size: 1.2rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+    }
+
+    .action-icon:hover {
+        transform: translateY(-2px);
+    }
+
+    .action-icon.edit:hover {
+        color: #ffc107;
+        background: rgba(255, 193, 7, 0.1);
+    }
+
+    .action-icon.delete:hover {
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 15px !important;
+    }
+
+    .badge-pill-category {
+        background: #eef2f7;
+        color: #5a6a85;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .btn-clean-filter {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-left: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-clean-filter:hover {
+        color: #212529;
+        text-decoration: underline;
     }
 </style>
 {% endblock %}
@@ -75,63 +134,57 @@
         <!-- Totales -->
         <div class="row g-2 mb-2">
             <div class="col-4">
-                <div class="card text-white bg-success shadow-sm border-0">
+                <div class="card text-white card-glass shadow-sm">
                     <div class="card-body p-2 text-center">
-                        <small class="fw-bold opacity-75">Ingresos</small>
-                        <span class="monto-header fw-bold">Gs {{ salario_minimo|gs_format }}</span>
+                        <small class="fw-bold opacity-75">Ingresos <i class="bi bi-arrow-up-short"></i></small>
+                        <span class="monto-header fw-bold">
+                            <small class="fs-6 opacity-50 me-1">Gs</small>{{ salario_minimo|gs_format }}
+                        </span>
                     </div>
                 </div>
             </div>
             <div class="col-4">
-                <div class="card text-white bg-primary shadow-sm border-0">
+                <div class="card text-white card-glass shadow-sm">
                     <div class="card-body p-2 text-center">
-                        <small class="fw-bold opacity-75">Egresos</small>
-                        <span class="monto-header fw-bold">Gs {{ total_gastado|gs_format }}</span>
+                        <small class="fw-bold opacity-75">Egresos <i class="bi bi-arrow-down-short"></i></small>
+                        <span class="monto-header fw-bold">
+                            <small class="fs-6 opacity-50 me-1">Gs</small>{{ total_gastado|gs_format }}
+                        </span>
                     </div>
                 </div>
             </div>
             <div class="col-4">
-                <div
-                    class="card text-white {% if diferencia >= 0 %}bg-info{% else %}bg-danger{% endif %} shadow-sm border-0">
+                <div class="card text-white card-glass shadow-sm">
                     <div class="card-body p-2 text-center">
-                        <small class="fw-bold opacity-75">Saldo</small>
-                        <span class="monto-header fw-bold">Gs {{ diferencia|gs_format }}</span>
+                        <small class="fw-bold opacity-75">Saldo <i class="bi bi-wallet2 ms-1"></i></small>
+                        <span class="monto-header fw-bold {% if diferencia < 0 %}text-warning{% endif %}">
+                            <small class="fs-6 opacity-50 me-1">Gs</small>{{ diferencia|gs_format }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Encabezado de Tabla Fijo -->
-        <div class="card bg-dark text-white border-0 rounded-bottom-0 shadow">
-            <div class="card-header border-0 py-2">
-                <!-- Usamos d-flex para que el título, el filtro y los botones convivan en la misma línea -->
+        <!-- Filtros -->
+        <div class="card bg-white text-dark border-0 rounded-4 shadow-sm mb-3">
+            <div class="card-header bg-transparent border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
-
-                    <!-- Formulario de Filtros compacto -->
-                    <form method="get" class="d-flex align-items-center gap-2 mb-0">
-                        <span class="fw-bold me-2">Mis Gastos</span>
-
+                    <form method="get" class="d-flex align-items-center gap-3 mb-0">
+                        <span class="fw-bold text-muted me-2">Mis Gastos</span>
                         <input type="date" name="start_date" value="{{ start_date }}"
-                            class="form-control form-control-sm bg-secondary text-white border-0" style="width: 130px;"
-                            title="Desde">
-
+                            class="form-control form-control-sm bg-light border-0"
+                            style="width: 150px; border-radius: 8px;">
                         <input type="date" name="end_date" value="{{ end_date }}"
-                            class="form-control form-control-sm bg-secondary text-white border-0" style="width: 130px;"
-                            title="Hasta">
-
-                        <button type="submit" class="btn btn-light btn-sm px-2">
-                            <i class="bi bi-filter"></i> Filtrar
-                        </button>
-
-                        <a href="{% url 'expense_list' %}" class="btn btn-outline-light btn-sm px-2">
-                            Limpiar
+                            class="form-control form-control-sm bg-light border-0"
+                            style="width: 150px; border-radius: 8px;">
+                        <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill px-3">Filtrar</button>
+                        <a href="{% url 'expense_list' %}" class="btn-clean-filter">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
                         </a>
                     </form>
-
-                    <!-- Botones de Acción a la derecha -->
-                    <div class="d-flex gap-1">
-                        <a href="{% url 'expense_create' %}" class="btn btn-primary btn-sm">Agregar Nuevo Gasto</a>
-                    </div>
+                    <a href="{% url 'expense_create' %}" class="btn btn-primary rounded-pill shadow-sm px-4">
+                        <i class="bi bi-plus-lg me-1"></i> Agregar Gasto
+                    </a>
                 </div>
             </div>
         </div>
@@ -139,17 +192,17 @@
 </div>
 
 <div class="container totales-compactos mb-5">
-    <div class="card border-0 shadow-lg rounded-top-0">
+    <div class="card border-0 shadow-lg">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 table-zebra">
-                    <thead class="table-dark">
-                        <tr>
+                    <thead>
+                        <tr class="text-secondary small">
                             <th class="ps-3">Fecha</th>
                             <th>Concepto</th>
-                            <th class="text-start">Categoría</th> <!-- Alineado a la izquierda -->
+                            <th>Categoría</th>
                             <th class="text-end">Importe</th>
-                            <th class="text-center">Comprobante</th> <!-- Columna recuperada -->
+                            <th class="text-center">Comprobante</th>
                             <th class="text-center pe-3">Acciones</th>
                         </tr>
                     </thead>
@@ -158,46 +211,39 @@
                         <tr>
                             <td class="ps-3 small text-muted">{{ expense.date }}</td>
                             <td>{{ expense.description }}</td>
-
-                            <!-- Categoría: sin fondo, alineada a la izquierda y letra pequeña -->
-                            <td class="text-start text-muted small">
-                                {{ expense.category }}
-                            </td>
-
-                            <!-- Importe: sin negritas -->
-                            <td class="text-end">
-                                {{ expense.amount|gs_format }}
-                            </td>
-
-                            <!-- Imagen: Columna recuperada -->
+                            <td><span class="badge-pill-category">{{ expense.category }}</span></td>
+                            <td class="text-end">{{ expense.amount|gs_format }}</td>
                             <td class="text-center">
                                 {% if expense.image %}
                                 <img src="{{ expense.image.url }}" class="rounded shadow-sm"
                                     style="height: 35px; width: 35px; object-fit: cover;">
                                 {% else %}
-                                <span class="text-muted" style="font-size: 0.7rem;">Sin foto</span>
+                                <span class="text-muted small">Sin foto</span>
                                 {% endif %}
                             </td>
-
-                            <!-- Acciones: Botones con el mismo ancho -->
                             <td class="text-center pe-3">
-                                <div class="d-flex justify-content-center gap-1">
+                                <div class="d-flex justify-content-center gap-2">
                                     <a href="{% url 'expense_update' expense.pk %}?page={{ expenses.number }}&start_date={{ start_date }}&end_date={{ end_date }}"
-                                        class="btn btn-warning btn-sm py-0 fw-bold text-white btn-fijo">
-                                        Editar
+                                        class="action-icon edit" title="Editar">
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <a href="{% url 'expense_delete' expense.pk %}"
-                                        class="btn btn-danger btn-sm py-0 fw-bold text-white btn-fijo">
-                                        Eliminar
+                                    <a href="{% url 'expense_delete' expense.pk %}" class="action-icon delete"
+                                        title="Eliminar">
+                                        <i class="bi bi-trash3"></i>
                                     </a>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">No hay gastos registrados.</td>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-search-heart opacity-25" style="font-size: 4rem; color: #667eea;"></i>
+                                <h5 class="mt-3 text-muted fw-light">No encontramos gastos registrados</h5>
+                                <a href="{% url 'expense_list' %}"
+                                    class="btn btn-sm btn-outline-primary rounded-pill mt-2">Ver todos</a>
+                            </td>
                         </tr>
-                        {% endfor %}
+                        {% endfor %} <!-- ESTA ES LA CORRECCIÓN CLAVE -->
                     </tbody>
                 </table>
             </div>
@@ -213,11 +259,9 @@
                 <a href="?page={{ expenses.previous_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}"
                     class="btn btn-outline-primary btn-sm">Anterior</a>
                 {% endif %}
-
                 <span class="btn btn-primary btn-sm active">Página {{ expenses.number }}</span>
-
                 {% if expenses.has_next %}
-                <a href="?page={{ expenses.next_page_number }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}"
+                <a href="?page={{ expenses.next_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}"
                     class="btn btn-outline-primary btn-sm">Siguiente</a>
                 <a href="?page={{ expenses.paginator.num_pages }}&start_date={{ start_date }}&end_date={{ end_date }}"
                     class="btn btn-outline-primary btn-sm">&raquo;</a>
