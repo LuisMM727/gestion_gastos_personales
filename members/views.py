@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Sum
 from .models import Expense, UserProfile
 from .forms import ExpenseForm, UserRegisterForm, UserProfileForm
 
@@ -36,15 +37,39 @@ def home(request):
 @login_required
 def expense_list(request):
     expenses = Expense.objects.filter(user=request.user)
+    category_filter = request.GET.get('category', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+
+    if category_filter:
+        expenses = expenses.filter(category=category_filter)
+    if date_from:
+        expenses = expenses.filter(date__gte=date_from)
+    if date_to:
+        expenses = expenses.filter(date__lte=date_to)
+
     total_gastado = sum(expense.amount for expense in expenses)
     profile = UserProfile.objects.filter(user=request.user).first()
     salario_minimo = profile.salario_minimo if profile else 0
     diferencia = salario_minimo - total_gastado if salario_minimo > 0 else 0
+
+    categories = Expense.objects.filter(user=request.user).values_list('category', flat=True).distinct().order_by('category')
+    category_stats = expenses.values('category').annotate(total=Sum('amount')).order_by('category')
+    chart_items = [
+        {'label': item['category'], 'value': float(item['total'])}
+        for item in category_stats
+    ]
+
     return render(request, 'members/expense_list.html', {
         'expenses': expenses,
         'total_gastado': total_gastado,
         'salario_minimo': salario_minimo,
-        'diferencia': diferencia
+        'diferencia': diferencia,
+        'categories': categories,
+        'selected_category': category_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+        'chart_items': chart_items,
     })
 
 @login_required
