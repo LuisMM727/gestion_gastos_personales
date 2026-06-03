@@ -15,6 +15,7 @@
                     <div class="alert alert-warning">
                         <strong>{{ expense.description }}</strong> - {{ expense.amount|floatformat:"-2" }} Gs
                     </div>
+                    <hr class="separator my-4">
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-grid gap-2">
