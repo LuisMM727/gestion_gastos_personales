@@ -1,4 +1,27 @@
-__pycache__
-.venv
+# --- ARCHIVO CONFIGURADO P/ EVITAR SUBIR AL REPOSITORIO ---
+
+# --- ENTORNO LOCAL Y CREDENCIALES (CRÍTICO) ---
+.env
+*.env
 db.sqlite3
-media
+/static_by_project/staticfiles/
+
+# --- ENTORNOS VIRTUALES (PESADOS) ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- CACHÉ DE PYTHON ---
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# --- CONFIGURACIÓN DE EDITORES (VS CODE / JEDI) ---
+.vscode/
+*.code-workspace
+.idea/
+
+# --- ARCHIVOS DEL SISTEMA OPERATIVO ---
+.DS_Store
+Thumbs.db
