@@ -15,10 +15,20 @@ class MembersModelFormTests(TestCase):
         self.profile = UserProfile.objects.create(user=self.user, salario_minimo=Decimal("2000000"))
 
     def test_user_profile_str_returns_username(self):
+        """
+        PRUEBA 1: Valida la representación en string del modelo UserProfile.
+        - Verifica que str(UserProfile) devuelva el formato correcto "Perfil de {username}".
+        - Comprueba que salario_minimo sea un valor positivo.
+        """
         self.assertEqual(str(self.profile), "Perfil de testuser")
         self.assertTrue(self.profile.salario_minimo > 0)
 
     def test_expense_str_contains_description_and_category(self):
+        """
+        PRUEBA 2: Valida la representación en string del modelo Expense.
+        - Crea un gasto de prueba.
+        - Verifica que la descripción y categoría aparezcan en str(Expense).
+        """
         expense = Expense.objects.create(
             user=self.user,
             amount=Decimal("750000"),
@@ -30,6 +40,13 @@ class MembersModelFormTests(TestCase):
         self.assertIn("Transporte", str(expense))
 
     def test_expense_form_valid_data(self):
+        """
+        PRUEBA 3: Valida que ExpenseForm acepta datos válidos.
+        - Envía datos correctos al formulario.
+        - Verifica que form.is_valid() devuelva True.
+        - Comprueba que los datos limpiados (cleaned_data) contengan tipos correctos.
+        - Asegura que cantidad sea Decimal, categoría y descripción sean las esperadas.
+        """
         form_data = {
             "amount": "150000",
             "description": "Cena familiar",
@@ -43,6 +60,13 @@ class MembersModelFormTests(TestCase):
         self.assertEqual(form.cleaned_data["description"], "Cena familiar")
 
     def test_expense_form_invalid_data_shows_errors(self):
+        """
+        PRUEBA 4: Valida que ExpenseForm rechaza datos inválidos.
+        - Envía datos incompletos y mal formateados al formulario.
+        - Verifica que form.is_valid() devuelva False.
+        - Comprueba que cada campo problemático genere un error.
+        - Verifica el mensaje específico de error en el campo 'description'.
+        """
         form_data = {
             "amount": "",
             "description": "",
@@ -78,6 +102,14 @@ class MembersViewTests(TestCase):
         )
 
     def test_expense_list_filters_by_category_and_calculates_total(self):
+        """
+        PRUEBA 5: Valida la vista expense_list con filtros.
+        - Hace una petición GET a la vista con filtro de categoría TRANSPORTE.
+        - Verifica que la respuesta sea exitosa (status_code 200).
+        - Comprueba que la categoría seleccionada sea TRANSPORTE en el contexto.
+        - Valida que el total de gastos sea 100000 (solo TRANSPORTE).
+        - Asegura que en HTML aparezca "Bus público" (TRANSPORTE) pero NO "Almuerzo" (ALIMENTACION).
+        """
         response = self.client.get(
             reverse("expense_list"),
             {"category": Expense.Category.TRANSPORTE},
@@ -89,6 +121,14 @@ class MembersViewTests(TestCase):
         self.assertNotContains(response, "Almuerzo")
 
     def test_export_excel_returns_attachment_filename_and_content_type(self):
+        """
+        PRUEBA 6: Valida la exportación a archivo Excel.
+        - Hace petición GET a expense_export_excel con fechas de filtro.
+        - Verifica que la respuesta sea exitosa (status_code 200).
+        - Comprueba que el tipo de contenido sea Excel (.xlsx).
+        - Valida que el nombre del archivo en Content-Disposition sea correcto.
+        - Asegura que la respuesta tenga contenido (bytes) para descargar.
+        """
         response = self.client.get(
             reverse("expense_export_excel"),
             {"start_date": "2025-04-01", "end_date": "2025-04-30"},
@@ -102,6 +142,14 @@ class MembersViewTests(TestCase):
         self.assertGreater(len(response.content), 0)
 
     def test_export_pdf_returns_pdf_attachment(self):
+        """
+        PRUEBA 7: Valida la exportación a archivo PDF.
+        - Hace petición GET a expense_export_pdf con fechas de filtro.
+        - Verifica que la respuesta sea exitosa (status_code 200).
+        - Comprueba que el tipo de contenido sea PDF.
+        - Valida que el nombre del archivo en Content-Disposition sea correcto.
+        - Asegura que el contenido comience con el encabezado PDF (%PDF).
+        """
         response = self.client.get(
             reverse("expense_export_pdf"),
             {"start_date": "2025-04-01", "end_date": "2025-04-30"},
