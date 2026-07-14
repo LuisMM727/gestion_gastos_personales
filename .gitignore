@@ -3,14 +3,17 @@
 # --- ENTORNO LOCAL Y CREDENCIALES (CRÍTICO) ---
 .env
 *.env
+!.env.example
 db.sqlite3
+media/
 /static_by_project/staticfiles/
 
-# --- ENTORNOS VIRTUALES (PESADOS) ---
+# --- ENTORNO VIRTUAL (usar solo .venv) ---
 .venv/
 venv/
 env/
 ENV/
+myworld/
 
 # --- CACHÉ DE PYTHON ---
 **/__pycache__/
