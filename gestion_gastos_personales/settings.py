@@ -9,15 +9,16 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Variables del archivo .env
-load_dotenv()
-
-# Rutas base
-BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 # Configuración de Seguridad
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-this-for-production")
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.getenv("DEBUG", "True").lower() in ("1", "true", "yes")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 # Definición de Aplicaciones
 INSTALLED_APPS = [
@@ -28,7 +29,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",  # Librería para filtros de formato humano
-    "members",  # Tu aplicación local
+    "gastos.apps.GastosConfig",  # App MTV: modelos, vistas y templates
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -106,12 +107,13 @@ LANGUAGE_CODE = "es-py"
 TIME_ZONE = "America/Asuncion"
 USE_I18N = True
 USE_TZ = True
-USE_L10N = True  # Desactiva el formato automático para usar el nuestro
 
 STATIC_URL = "static/"
 
 # Login redirects
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "expense_list"
+LOGOUT_REDIRECT_URL = "login"
 
 # Media files
 MEDIA_URL = "/media/"
