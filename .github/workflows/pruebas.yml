@@ -28,8 +28,17 @@ jobs:
     - name: Instalar dependencias
       run: |
         python -m pip install --upgrade pip
+        # paquetes del sistema necesarios para compilar ruedas y dependencias nativas
+        sudo apt-get update
+        sudo apt-get install -y default-libmysqlclient-dev build-essential libssl-dev libffi-dev python3-dev
+        # instalar dependencias Python
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install -e .
+        # instalar en editable sólo si hay metadata
+        if [ -f setup.py ] || [ -f pyproject.toml ]; then
+          pip install -e .
+        else
+          echo "No se encontró setup.py ni pyproject.toml — se omite 'pip install -e .'"
+        fi
 
     # Paso D: Ejecutar pruebas (tests)
     - name: Ejecutar pruebas (tests)
