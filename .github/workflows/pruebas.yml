@@ -30,8 +30,9 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    # Paso D: Ejecutar tus pruebas automáticas (Linting y Tests)
+   # Paso D: Ejecutar pruebas (tests)
     - name: Ejecutar pruebas (tests)
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
-        # Reemplazá esto por el comando con el que corrés tus pruebas locales
         python manage.py test
