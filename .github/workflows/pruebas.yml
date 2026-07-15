@@ -32,8 +32,7 @@ jobs:
 
     # Paso D: Ejecutar pruebas (tests)
     - name: Ejecutar pruebas (tests)
-    env:
-    PYTHONPATH: ${{ github.workspace }}
-    run: |
-        pip install -e .
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+      run: |
         python manage.py test
