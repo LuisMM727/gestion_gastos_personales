@@ -71,24 +71,33 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_ENGINE = os.getenv("DB_ENGINE", "mysql")
 
-if DB_ENGINE == "sqlite" or not DB_NAME or not DB_HOST:
+# En CI (GitHub Actions) usar sqlite in-memory para tests
+if os.getenv("GITHUB_ACTIONS") == "true" or os.getenv("CI") == "true":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": ":memory:",
         }
     }
 else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": DB_NAME,
-            "USER": DB_USER,
-            "PASSWORD": DB_PASSWORD,
-            "HOST": DB_HOST,
-            "PORT": DB_PORT,
+    if DB_ENGINE == "sqlite" or not DB_NAME or not DB_HOST:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
+            }
         }
-    }
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": DB_NAME,
+                "USER": DB_USER,
+                "PASSWORD": DB_PASSWORD,
+                "HOST": DB_HOST,
+                "PORT": DB_PORT,
+            }
+        }
 
 # Validación de Contraseñas
 AUTH_PASSWORD_VALIDATORS = [
