@@ -34,4 +34,4 @@ jobs:
     - name: Ejecutar pruebas (tests)
       run: |
         # Reemplazá esto por el comando con el que corrés tus pruebas locales
-        pytest
+        python manage.py test
