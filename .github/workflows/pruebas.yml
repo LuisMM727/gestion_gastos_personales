@@ -1,0 +1,37 @@
+# 1. El nombre de tu automatización
+name: Pruebas de Calidad del Código
+
+# 2. ¿CUÁNDO se va a ejecutar? (Disparadores)
+on:
+  push:
+    branches: [ "main" ]  # Se ejecuta cada vez que subís cambios a main
+  pull_request:
+    branches: [ "main" ]  # Se ejecuta cuando querés fusionar código a main
+
+# 3. ¿QUÉ va a hacer? (Trabajos)
+jobs:
+  testeo:
+    runs-on: ubuntu-latest  # Se ejecuta en una computadora virtual con Linux en la nube
+
+    steps:
+    # Paso A: Copiar el código de tu repositorio a la máquina virtual
+    - name: Copiar código del repositorio
+      uses: actions/checkout@v4
+
+    # Paso B: Instalar Python en la máquina virtual
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    # Paso C: Instalar las dependencias de tu proyecto (requirements.txt)
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    # Paso D: Ejecutar tus pruebas automáticas (Linting y Tests)
+    - name: Ejecutar pruebas (tests)
+      run: |
+        # Reemplazá esto por el comando con el que corrés tus pruebas locales
+        pytest
